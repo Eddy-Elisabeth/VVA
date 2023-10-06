@@ -1,0 +1,135 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction de scores de match</title>
+</head>
+<body>
+    <h1>Prediction de scores de match</h1>
+    <form method="POST" action="/">
+        <label for="home_team">Équipe à domicile : </label>
+        <input type="text" name="home_team" required><br><br>
+        <label for="away_team">Équipe à l'extérieur : </label>
+        <input type="text" name="away_team" required><br><br>
+        <label for="avg_temp_c">Température moyenne (°C) : </label>
+        <input type="number" name="avg_temp_c" required><br><br>
+        <label for="precipitation_mm">Précipitation (mm) : </label>
+        <input type="number" name="precipitation_mm" required><br><br>
+        <input type="submit" value="Prédire">
+    </form>
+</body>
+</html> -->
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction de scores de match</title>
+</head>
+<body>
+    <h1>Prediction de scores de match</h1>
+    <form method="POST" action="/">
+        <label for="home_team">Équipe à domicile : </label>
+        <select name="home_team" required>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="away_team">Équipe à l'extérieur : </label>
+        <select name="away_team" required>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="avg_temp_c">Température moyenne (°C) : </label>
+        <input type="number" name="avg_temp_c" required><br><br>
+        <label for="precipitation_mm">Précipitation (mm) : </label>
+        <input type="number" name="precipitation_mm" required><br><br>
+        <input type="submit" value="Prédire">
+    </form>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction de scores de match</title>
+</head>
+<body>
+    <h1>Prediction de scores de match</h1>
+    <form method="POST" action="/">
+        <label for="home_team">Équipe à domicile : </label>
+        <select name="home_team" required>
+            <option value="" disabled selected>Choisissez une équipe</option>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="away_team">Équipe à l'extérieur : </label>
+        <select name="away_team" required>
+            <option value="" disabled selected>Choisissez une équipe</option>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="avg_temp_c">Température moyenne (°C) : </label>
+        <input type="number" name="avg_temp_c" required><br><br>
+        <label for="precipitation_mm">Précipitation (mm) : </label>
+        <input type="number" name="precipitation_mm" required><br><br>
+        <input type="submit" value="Prédire">
+    </form>
+</body>
+</html> -->
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction de scores de match</title>
+</head>
+<body>
+    <h1>Prediction de scores de match</h1>
+    <form method="POST" action="/">
+        <label for="home_team">Équipe à domicile : </label>
+        <select name="home_team" required>
+            <option value="" disabled selected>Choisissez une équipe</option>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="away_team">Équipe à l'extérieur : </label>
+        <select name="away_team" required>
+            <option value="" disabled selected>Choisissez une équipe</option>
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select><br><br>
+        <label for="avg_temp_c">Température moyenne (°C) : </label>
+        <input type="number" name="avg_temp_c" required><br><br>
+        <label for="precipitation_mm">Précipitation (mm) : </label>
+        <input type="number" name="precipitation_mm" required><br><br>
+        <input type="submit" value="Prédire">
+    </form>
+    {% if winner %}
+        <p>Résultats de la prédiction :</p>
+        <p>Équipe gagnante prédite : {{ winner }}</p>
+        <p>Pourcentage de chance du {{ winner }} : {{ win_percentage }}%</p>
+    {% endif %}
+</body>
+</html>
