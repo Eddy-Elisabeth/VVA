@@ -98,14 +98,167 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Prediction de scores de match</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Ajoutez des styles personnalisés ici */
+        body {
+            background-image: url('https://www.vitry94.fr/fileadmin/www.vitry94.fr/MEDIA23/08/rugby-20230807.jpg'); /* Ajoutez l'URL de votre image de fond */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Couleur de fond de la zone de contenu */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #007BFF; /* Couleur du titre principal */
+        }
+
+        .btn-primary {
+            background-color: #007BFF; /* Couleur du bouton "Prédire" */
+            border-color: #007BFF;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Couleur du bouton "Prédire" au survol */
+            border-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1 class="mt-5">Prediction de scores de match</h1>
+        <form method="POST" action="/">
+            <div class="form-group mt-4">
+                <label for="home_team">Équipe à domicile :</label>
+                <select class="form-control" name="home_team" required>
+                    <option value="" disabled selected>Choisissez une équipe</option>
+                    {% for team in teams %}
+                        <option value="{{ team }}">{{ team }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="away_team">Équipe à l'extérieur :</label>
+                <select class="form-control" name="away_team" required>
+                    <option value="" disabled selected>Choisissez une équipe</option>
+                    {% for team in teams %}
+                        <option value="{{ team }}">{{ team }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="avg_temp_c">Température moyenne (°C) :</label>
+                <input type="number" class="form-control" name="avg_temp_c" required>
+            </div>
+            <div class="form-group">
+                <label for="precipitation_mm">Précipitation (mm) :</label>
+                <input type="number" class="form-control" name="precipitation_mm" step="any" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Prédire</button>
+        </form>
+        {% if winner %}
+            <div class="mt-4">
+                <h2>Résultats de la prédiction :</h2>
+                <p>Équipe gagnante prédite : {{ winner }}</p>
+                <p>Pourcentage de chance du {{ winner }} : {{ win_percentage|round(1) }}%</p>
+            </div>
+        {% endif %}
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- # code avec machin learning plus poussé -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction de scores de match</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Ajoutez des styles personnalisés ici */
+        body {
+            background-image: url('https://www.vitry94.fr/fileadmin/www.vitry94.fr/MEDIA23/08/rugby-20230807.jpg'); /* Ajoutez l'URL de votre image de fond */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Couleur de fond de la zone de contenu */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: #007BFF; /* Couleur du titre principal */
+        }
+
+        .btn-primary {
+            background-color: #007BFF; /* Couleur du bouton "Prédire" */
+            border-color: #007BFF;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Couleur du bouton "Prédire" au survol */
+            border-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
     <h1>Prediction de scores de match</h1>
-    <form method="POST" action="/">
+    <form method="POST" action="/"> <!-- Action pointe vers la nouvelle route pour les prédictions -->
         <label for="home_team">Équipe à domicile : </label>
         <select name="home_team" required>
             <option value="" disabled selected>Choisissez une équipe</option>
@@ -121,15 +274,21 @@
             {% endfor %}
         </select><br><br>
         <label for="avg_temp_c">Température moyenne (°C) : </label>
-        <input type="number" name="avg_temp_c" required><br><br>
-        <label for="precipitation_mm">Précipitation (mm) : </label>
-        <input type="number" name="precipitation_mm" required><br><br>
+        <input type="number" name="avg_temp_c" step="1" required> <!-- Permet les chiffres à virgules -->
+        <br><br>
+        <label for="precipitation_mm">Précipitation (mm) :</label>
+        <input type="number" name="precipitation_mm" step="0.01" required> <!-- Permet les chiffres à virgules -->
+        <br><br>
         <input type="submit" value="Prédire">
     </form>
-    {% if winner %}
-        <p>Résultats de la prédiction :</p>
-        <p>Équipe gagnante prédite : {{ winner }}</p>
-        <p>Pourcentage de chance du {{ winner }} : {{ win_percentage }}%</p>
+    
+    {% if winner is defined %}
+        <div class="mt-4">
+            <h2>Résultat de la prédiction :</h2>
+            <p>Vainqueur prédit : {{ winner }}</p>
+            <p>Cote de victoire : {{ win_percentage|round(1) }}%</p>
+        </div>
     {% endif %}
+</div>
 </body>
 </html>
