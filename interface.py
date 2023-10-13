@@ -571,6 +571,7 @@ def home():
     if request.method == "POST":
         home_team = request.form["home_team"]
         away_team = request.form["away_team"]
+        location = request.form["location"]  # Récupérer le lieu du match depuis le formulaire
 
         # Rechercher les scores des matchs précédents impliquant les mêmes équipes
         previous_matches_home = match_data[(match_data["home_team"] == home_team) & (match_data["away_team"] == away_team)]
@@ -584,6 +585,15 @@ def home():
         avg_temp_c = float(request.form["avg_temp_c"])
         precipitation_mm = float(request.form["precipitation_mm"])
 
+
+        # Ajouter une pondération en fonction du lieu du match
+        if location == "home":
+            home_weight = 1.1
+            away_weight = 0.9
+        else:
+            home_weight = 1.0
+            away_weight = 1.0
+
         try:
             features = [avg_temp_c, precipitation_mm, avg_home_score, avg_away_score]
 
@@ -593,6 +603,14 @@ def home():
             total_score = avg_home_score + avg_away_score
             percent_team1 = 50 + (score_predicted[0] / total_score) * 50
             percent_team2 = 100 - percent_team1
+
+            # Appliquer la pondération en fonction du lieu du match
+            percent_team1 *= home_weight
+            percent_team2 *= away_weight
+
+            # Assurez-vous que les pourcentages restent dans la plage de 0 à 100
+            percent_team1 = max(0, min(100, percent_team1))
+            percent_team2 = max(0, min(100, percent_team2))
 
             if percent_team1 > 100:
                 percent_team1 = 100
