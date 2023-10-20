@@ -539,6 +539,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -590,9 +604,13 @@ def home():
         if location == "home":
             home_weight = 1.1
             away_weight = 0.9
+        elif location == "away":
+            home_weight = 0.9
+            away_weight = 1.1
         else:
             home_weight = 1.0
             away_weight = 1.0
+
 
         try:
             features = [avg_temp_c, precipitation_mm, avg_home_score, avg_away_score]
@@ -639,3 +657,435 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import pandas as pd
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.preprocessing import StandardScaler
+# from bs4 import BeautifulSoup
+# import requests
+# from flask import Flask, render_template, request
+
+# # Charger les données des matchs à partir du fichier CSV (rugby dataset.csv)
+# match_data = pd.read_csv("rugby dataset.csv")
+
+# # Charger les données météo à partir du fichier CSV (meteo_dataset.csv)
+# meteo_data = pd.read_csv("donneenettoyer.csv")
+
+# # Initialiser l'application Flask
+# app = Flask(__name__)
+
+# # Fonction pour récupérer les cotes de paris en ligne
+# def get_betting_odds(home_team, away_team):
+#     url = "https://www.betclic.fr/rugby-a-xv-s5/coupe-du-monde-2023-c34"
+#     response = requests.get(url)
+#     html = response.text
+#     soup = BeautifulSoup(html, "html.parser")
+
+#     # Trouver toutes les balises span avec la classe "oddValue"
+#     odds_elements = soup.find_all("span", class_="oddValue")
+
+#     # Extraire les cotes pour l'équipe à domicile (premier élément) et l'équipe à l'extérieur (troisième élément)
+#     home_odds = float(odds_elements[0].text.replace(",", ".")) if odds_elements and len(odds_elements) > 0 else None
+#     away_odds = float(odds_elements[2].text.replace(",", ".")) if odds_elements and len(odds_elements) > 2 else None
+
+#     return home_odds, away_odds
+
+# @app.route("/", methods=["GET", "POST"])
+# def home():
+#     home_teams = match_data["home_team"].unique()
+#     away_teams = match_data["away_team"].unique()
+
+#     winner = None
+#     win_percentage = None
+#     home_score = 0
+#     away_score = 0  # Ajout de cette ligne
+
+#     if request.method == "POST":
+#         home_team = request.form["home_team"]
+#         away_team = request.form["away_team"]
+
+#         # Obtenir les cotes de paris en ligne
+#         home_odds, away_odds = get_betting_odds(home_team, away_team)
+
+#         # Extraire les caractéristiques du match
+#         avg_temp_c = float(request.form["avg_temp_c"])
+#         precipitation_mm = float(request.form["precipitation_mm"])
+#         avg_home_score = match_data[(match_data["home_team"] == home_team) & (match_data["away_team"] == away_team)]["home_score"].mean()
+#         avg_away_score = match_data[(match_data["home_team"] == away_team) & (match_data["away_team"] == home_team)]["away_score"].mean()
+
+#         # Entraîner un modèle de régression logistique sur les données historiques
+#         features = match_data[["home_score", "away_score"]]
+#         # target = match_data["result"]  # 1 si l'équipe à domicile gagne, 0 sinon
+#         target = (match_data["home_score"] > match_data["away_score"]).astype(int)
+
+#         # Normaliser les données
+#         scaler = StandardScaler()
+#         features = scaler.fit_transform(features)
+
+#         model = LogisticRegression()
+#         model.fit(features, target)
+
+#         input_features = [avg_home_score, avg_away_score]
+#         input_features = scaler.transform([input_features])
+#         prediction = model.predict_proba(input_features)
+
+#         home_probability = prediction[0][1]
+#         away_probability = prediction[0][0]
+
+#         # Appliquer la pondération en fonction des cotes de paris
+#         if home_odds and away_odds:
+#             home_weight = 1 / home_odds
+#             away_weight = 1 / away_odds
+#             home_probability *= home_weight
+#             away_probability *= away_weight
+
+#         home_probability = max(0, min(1, home_probability))
+#         away_probability = max(0, min(1, away_probability))
+
+#         if home_probability > away_probability:
+#             winner = home_team
+#             win_percentage = home_probability
+#             home_score = int((home_probability + 0.5) * 30)
+#         else:
+#             winner = away_team
+#             win_percentage = away_probability
+#             away_score = int((away_probability + 0.5) * 30)
+
+#     return render_template("index.html", home_teams=home_teams, away_teams=away_teams,
+#                            winner=winner, win_percentage=win_percentage, home_score=home_score, away_score=away_score)
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import pandas as pd
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.preprocessing import StandardScaler
+# from bs4 import BeautifulSoup
+# import requests
+# from flask import Flask, render_template, request
+
+# # Charger les données des matchs à partir du fichier CSV (rugby dataset.csv)
+# match_data = pd.read_csv("rugby dataset.csv")
+
+# # Charger les données météo à partir du fichier CSV (donneenettoyer.csv)
+# meteo_data = pd.read_csv("donneenettoyer.csv")
+
+# match_data['result'] = 0  # Initialisez la colonne "result" avec des zéros (0 pour une victoire à l'extérieur).
+
+# # Mettez à jour la colonne "result" en fonction des scores.
+# match_data.loc[match_data['home_score'] > match_data['away_score'], 'result'] = 1  # Victoire à domicile (1).
+
+# # Initialiser l'application Flask
+# app = Flask(__name__)
+
+# # Fonction pour récupérer les cotes de paris en ligne depuis un site web
+# def get_betting_odds(home_team, away_team):
+#     url = "https://www.betclic.fr/coupe-du-monde-2023-s5/coupe-du-monde-2023-c34"  # Remplacez par l'URL de votre site Web réel
+#     response = requests.get(url)
+#     soup = BeautifulSoup(response.text, "html.parser")
+
+#     # Trouver tous les éléments avec la classe "oddValue" qui contiennent les cotes
+#     odds_elements = soup.find_all("span", class_="oddValue")
+
+#     # Extraire les cotes
+#     home_odds = float(odds_elements[0].text.replace(",", "."))
+#     away_odds = float(odds_elements[2].text.replace(",", "."))
+
+#     return home_odds, away_odds
+
+# @app.route("/", methods=["GET", "POST"])
+# def home():
+#     home_teams = match_data["home_team"].unique()
+#     away_teams = match_data["away_team"].unique()
+
+#     winner = None
+#     win_percentage = None
+#     home_score = 0
+#     away_score = 0
+
+#     if request.method == "POST":
+#         home_team = request.form["home_team"]
+#         away_team = request.form["away_team"]
+
+#         # Obtenir les cotes de paris en ligne
+#         home_odds, away_odds = get_betting_odds(home_team, away_team)
+
+#         # Extraire les caractéristiques du match à partir des données météo
+#         match_meteo = meteo_data[(meteo_data["city_name"] == request.form["location"])]
+
+#         avg_temp_c = match_meteo["avg_temp_c"].mean()
+#         precipitation_mm = match_meteo["precipitation_mm"].mean()
+
+#         # Entraîner un modèle de régression logistique sur les données historiques
+#         features = meteo_data[["avg_temp_c", "precipitation_mm"]]
+#         features = match_data[["home_score", "away_score"]]
+#         target = match_data["result"]  # 1 si l'équipe à domicile gagne, 0 sinon
+
+#         # Normaliser les données
+#         scaler = StandardScaler()
+#         features = scaler.fit_transform(features)
+
+#         model = LogisticRegression()
+#         model.fit(features, target)
+
+#         input_features = [avg_temp_c, precipitation_mm, home_score, away_score]
+#         input_features = scaler.transform([input_features])
+#         prediction = model.predict_proba(input_features)
+
+#         home_probability = prediction[0][1]
+#         away_probability = prediction[0][0]
+
+#         # Appliquer la pondération en fonction des cotes de paris
+#         if home_odds and away_odds:
+#             home_weight = 1 / home_odds
+#             away_weight = 1 / away_odds
+#             home_probability *= home_weight
+#             away_probability *= away_weight
+
+#         home_probability = max(0, min(1, home_probability))
+#         away_probability = max(0, min(1, away_probability))
+
+#         if home_probability > away_probability:
+#             winner = home_team
+#             win_percentage = home_probability * 100
+#             home_score = int((home_probability + 0.5) * 30)
+#         else:
+#             winner = away_team
+#             win_percentage = away_probability * 100
+#             away_score = int((away_probability + 0.5) * 30)
+
+#     return render_template("index.html", home_teams=home_teams, away_teams=away_teams,
+#                            winner=winner, win_percentage=win_percentage, home_score=home_score, away_score=away_score)
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import pandas as pd
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.preprocessing import StandardScaler
+# from bs4 import BeautifulSoup
+# import requests
+# from flask import Flask, render_template, request
+
+# # Charger les données des matchs à partir du fichier CSV (rugby dataset.csv)
+# match_data = pd.read_csv("rugby dataset.csv")
+
+# # Charger les données météo à partir du fichier CSV (donneenettoyer.csv)
+# meteo_data = pd.read_csv("donneenettoyer.csv")
+
+# # Initialiser l'application Flask
+# app = Flask(__name__)
+
+# # Fonction pour récupérer les cotes de paris en ligne depuis un site web
+# def get_betting_odds(home_team, away_team):
+#     url = "https://www.betclic.fr/rugby-a-xv-s5/coupe-du-monde-2023-c34"
+#     response = requests.get(url)
+#     soup = BeautifulSoup(response.text, "html.parser")
+
+#     # Trouver les éléments qui contiennent les cotes (assurez-vous que les sélecteurs CSS sont corrects)
+#     home_odds_element = soup.find("span", class_="oddValue", text=True)
+#     away_odds_element = home_odds_element.find_next("span", class_="oddValue")
+
+#     # Extraire les cotes
+#     home_odds = float(home_odds_element.get_text().replace(",", "."))
+#     away_odds = float(away_odds_element.get_text().replace(",", "."))
+
+#     return home_odds, away_odds
+
+# @app.route("/", methods=["GET", "POST"])
+# def home():
+#     home_teams = match_data["home_team"].unique()
+#     away_teams = match_data["away_team"].unique()
+
+#     winner = None
+#     win_percentage = None
+#     home_score = 0
+#     away_score = 0
+
+#     if request.method == "POST":
+#         home_team = request.form["home_team"]
+#         away_team = request.form["away_team"]
+
+#         # Obtenir les cotes de paris en ligne
+#         home_odds, away_odds = get_betting_odds(home_team, away_team)
+
+#         # Extraire les caractéristiques du match à partir des données météo
+#         match_meteo = meteo_data[meteo_data["city_name"] == request.form["location"]]
+#         avg_temp_c = match_meteo["avg_temp_c"].mean()
+#         precipitation_mm = match_meteo["precipitation_mm"].mean()
+
+#         # Entraîner un modèle de régression logistique sur les scores des équipes
+#         features = match_data[["home_score", "away_score"]]
+#         target = (features["home_score"] > features["away_score"]).astype(int)  # 1 si l'équipe à domicile gagne, 0 sinon
+
+#         # Normaliser les données
+#         scaler = StandardScaler()
+#         features = scaler.fit_transform(features)
+
+#         model = LogisticRegression()
+#         model.fit(features, target)
+
+#         input_features = [home_score, away_score]
+#         input_features = scaler.transform([input_features])
+#         prediction = model.predict_proba(input_features)
+
+#         home_probability = prediction[0][1]
+#         away_probability = prediction[0][0]
+
+#         # Appliquer la pondération en fonction des cotes de paris
+#         if home_odds and away_odds:
+#             home_weight = 1 / home_odds
+#             away_weight = 1 / away_odds
+#             home_probability *= home_weight
+#             away_probability *= away_weight
+
+#         home_probability = max(0, min(1, home_probability))
+#         away_probability = max(0, min(1, away_probability))
+
+#         if home_probability > away_probability:
+#             winner = home_team
+#             win_percentage = home_probability * 100
+#             home_score = int((home_probability + 0.5) * 30)
+#         else:
+#             winner = away_team
+#             win_percentage = away_probability * 100
+#             away_score = int((away_probability + 0.5) * 30)
+
+#     return render_template("index.html", home_teams=home_teams, away_teams=away_teams,
+#                            winner=winner, win_percentage=win_percentage, home_score=home_score, away_score=away_score)
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
