@@ -553,11 +553,164 @@
 
 
 
+# import pandas as pd
+# from sklearn.preprocessing import PolynomialFeatures
+# from sklearn.linear_model import LinearRegression
+# from flask import Flask, render_template, request
+# import joblib
+
+# # Charger les données des matchs à partir du fichier CSV (rugby dataset.csv)
+# match_data = pd.read_csv("rugby dataset.csv")
+
+# # Charger les données météo à partir du fichier CSV (meteo_data.csv)
+# weather_data = pd.read_csv("donneenettoyer.csv")
+
+# # Charger le modèle de régression polynomial sauvegardé
+# model = joblib.load("rugby_model.pkl")
+
+# # Initialiser l'application Flask
+# app = Flask(__name__)
+
+# @app.route("/", methods=["GET", "POST"])
+# def home():
+#     # Obtenir la liste des équipes uniques à partir de la base de données des matchs
+#     home_teams = match_data["home_team"].unique()
+#     away_teams = match_data["away_team"].unique()
+
+#     winner = None
+#     win_percentage = None
+#     home_score_predicted = 0
+#     away_score_predicted = 0
+
+#     if request.method == "POST":
+#         home_team = request.form["home_team"]
+#         away_team = request.form["away_team"]
+#         location = request.form["location"]  # Récupérer le lieu du match depuis le formulaire
+
+#         # Rechercher les scores des matchs précédents impliquant les mêmes équipes
+#         previous_matches_home = match_data[(match_data["home_team"] == home_team) & (match_data["away_team"] == away_team)]
+#         previous_matches_away = match_data[(match_data["home_team"] == away_team) & (match_data["away_team"] == home_team)]
+
+#         avg_home_score = previous_matches_home["home_score"].mean()
+#         avg_away_score = previous_matches_away["away_score"].mean()
+
+#         # Utiliser les données météo historiques pour estimer l'impact de la météo sur les matchs précédents
+#         # Vous devrez ajuster ce code en fonction de vos données météo spécifiques
+#         avg_temp_c = float(request.form["avg_temp_c"])
+#         precipitation_mm = float(request.form["precipitation_mm"])
+
+
+#         # Ajouter une pondération en fonction du lieu du match
+#         if location == "home":
+#             home_weight = 1.1
+#             away_weight = 0.9
+#         elif location == "away":
+#             home_weight = 0.9
+#             away_weight = 1.1
+#         else:
+#             home_weight = 1.0
+#             away_weight = 1.0
+
+
+#         try:
+#             features = [avg_temp_c, precipitation_mm, avg_home_score, avg_away_score]
+
+#             # Prédire le score du match avec le modèle de régression polynomial
+#             score_predicted = model.predict([features])
+
+#             total_score = avg_home_score + avg_away_score
+#             percent_team1 = 50 + (score_predicted[0] / total_score) * 50
+#             percent_team2 = 100 - percent_team1
+
+#             # Appliquer la pondération en fonction du lieu du match
+#             percent_team1 *= home_weight
+#             percent_team2 *= away_weight
+
+#             # Assurez-vous que les pourcentages restent dans la plage de 0 à 100
+#             percent_team1 = max(0, min(100, percent_team1))
+#             percent_team2 = max(0, min(100, percent_team2))
+
+#             if percent_team1 > 100:
+#                 percent_team1 = 100
+#                 percent_team2 = 0
+#             elif percent_team2 > 100:
+#                 percent_team2 = 100
+#                 percent_team1 = 0
+
+#             if percent_team1 > percent_team2:
+#                 winner = home_team
+#             elif percent_team2 > percent_team1:
+#                 winner = away_team
+#             else:
+#                 winner = "Match nul"
+
+#             if percent_team1 is not None:
+#                 win_percentage = round(max(percent_team1, percent_team2), 1)
+
+#             home_score_predicted = avg_home_score + (total_score * percent_team1 / 100)
+#             away_score_predicted = avg_away_score + (total_score * percent_team2 / 100)
+#         except Exception as e:
+#             print(f"Erreur lors de la prédiction : {e}")
+#             winner = "Erreur de prédiction"
+
+#     return render_template("index.html", home_teams=home_teams, away_teams=away_teams, winner=winner, win_percentage=win_percentage, home_score=home_score_predicted, away_score=away_score_predicted)
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from flask import Flask, render_template, request
 import joblib
+from bs4 import BeautifulSoup
+import requests
 
 # Charger les données des matchs à partir du fichier CSV (rugby dataset.csv)
 match_data = pd.read_csv("rugby dataset.csv")
@@ -581,11 +734,20 @@ def home():
     win_percentage = None
     home_score_predicted = 0
     away_score_predicted = 0
+    cotes = {"home": None, "away": None}  # Initialisation des cotes à None par défaut
+    # Initialisez les cotes à None par défaut
+    home_odds = None
+    away_odds = None
 
     if request.method == "POST":
         home_team = request.form["home_team"]
         away_team = request.form["away_team"]
         location = request.form["location"]  # Récupérer le lieu du match depuis le formulaire
+
+        # Mettez à jour les cotes si elles sont disponibles
+        if home_odds is not None and away_odds is not None:
+            cotes["home"] = home_odds
+            cotes["away"] = away_odds
 
         # Rechercher les scores des matchs précédents impliquant les mêmes équipes
         previous_matches_home = match_data[(match_data["home_team"] == home_team) & (match_data["away_team"] == away_team)]
@@ -599,6 +761,10 @@ def home():
         avg_temp_c = float(request.form["avg_temp_c"])
         precipitation_mm = float(request.form["precipitation_mm"])
 
+        # Mettez à jour les cotes si elles sont disponibles
+        if home_odds is not None and away_odds is not None:
+            cotes["home"] = home_odds
+            cotes["away"] = away_odds
 
         # Ajouter une pondération en fonction du lieu du match
         if location == "home":
@@ -611,8 +777,24 @@ def home():
             home_weight = 1.0
             away_weight = 1.0
 
-
         try:
+            # Extraire les cotes du site de paris en ligne
+            cotes_url = "https://www.betclic.fr/rugby-a-xv-s5/coupe-du-monde-2023-c34"
+            cotes_response = requests.get(cotes_url)
+            cotes_soup = BeautifulSoup(cotes_response.text, "html.parser")
+
+            cotes_elements = cotes_soup.find_all("sports-selections-selection")
+            cotes_dict = {}
+
+            for cote_element in cotes_elements:
+                equipe = cote_element.find("span", class_="oddMatchName").text
+                cote = cote_element.find("span", class_="oddValue").text
+                cotes_dict[equipe] = float(cote.replace(",", "."))
+
+            # Utiliser les cotes pour ajuster la prédiction
+            home_odds = cotes_dict.get(home_team, 1.0)
+            away_odds = cotes_dict.get(away_team, 1.0)
+
             features = [avg_temp_c, precipitation_mm, avg_home_score, avg_away_score]
 
             # Prédire le score du match avec le modèle de régression polynomial
@@ -653,10 +835,19 @@ def home():
             print(f"Erreur lors de la prédiction : {e}")
             winner = "Erreur de prédiction"
 
-    return render_template("index.html", home_teams=home_teams, away_teams=away_teams, winner=winner, win_percentage=win_percentage, home_score=home_score_predicted, away_score=away_score_predicted)
+    cotes = {"home": home_odds, "away": away_odds}
+    
+    return render_template("index.html", home_teams=home_teams, away_teams=away_teams, cotes=cotes, winner=winner, win_percentage=win_percentage, home_score=home_score_predicted, away_score=away_score_predicted)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
+
 
 
 
